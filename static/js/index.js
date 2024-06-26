@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const usernameField = document.getElementById("username");
   const passwordField = document.getElementById("password");
   const loginButton = document.getElementById("signinButton");
+  const errorDiv = document.getElementById("errorDiv");
 
   loginButton.addEventListener("click", async function (e) {
     e.preventDefault();
@@ -10,6 +11,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (!username || !password) {
       console.log("Please enter a username and password");
+      errorDiv.textContent = "Please enter a username and password";
+      if (!errorDiv.classList.contains("active")) {
+        errorDiv.classList.add("active");
+        errorDiv.classList.add("bg-danger");
+        setTimeout(() => {
+          errorDiv.classList.remove("active");
+          errorDiv.classList.remove("bg-danger");
+          errorDiv.textContent = "";
+        }, 2500);
+        return;
+      }
       return;
     }
 
@@ -30,6 +42,17 @@ document.addEventListener("DOMContentLoaded", function () {
     if (res.success) {
       location.href = `/home?access_token=${res?.token}`;
     } else {
+      errorDiv.textContent = res.message;
+      if (!errorDiv.classList.contains("active")) {
+        errorDiv.classList.add("active");
+        errorDiv.classList.add("bg-danger");
+        setTimeout(() => {
+          errorDiv.classList.remove("active");
+          errorDiv.classList.remove("bg-danger");
+          errorDiv.textContent = "";
+        }, 2500);
+        return;
+      }
       console.log(res.message);
     }
   });
