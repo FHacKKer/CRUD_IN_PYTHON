@@ -156,7 +156,7 @@ const renderUsers = (users) => {
   });
 };
 
-const updateUsersList = async () => {
+const updateUsersList = async (allUsers) => {
   let accessToken = window.location.search.split("?")[1].split("=")[1];
 
   if (!accessToken) window.location.href = "/";
@@ -164,9 +164,10 @@ const updateUsersList = async () => {
   const usersResponse = await getUsers(accessToken);
   console.log(usersResponse);
   if (!usersResponse.success) {
-    // return (window.location.href = "/");
+    return (window.location.href = "/");
   }
   if (usersResponse.users) {
+    allUsers = usersResponse?.users;
     renderUsers(usersResponse?.users);
   }
 };
@@ -181,6 +182,23 @@ const deleteUser = async (user) => {
 
 document.addEventListener("DOMContentLoaded", async () => {
   const searchBox = document.getElementById("searchBox");
+  const spinner = `<div class="spinner-border spinner-border-sm" role="status">
+  <span class="visually-hidden">Loading...</span>
+</div>`;
+
+  let allUsers;
+  searchBox.addEventListener("input", (e) => {
+    let searchTerm = e.target.value.toLowerCase();
+    const filteredUsers = allUsers.filter((user) => {
+      return (
+        user.name.toLowerCase().includes(searchTerm) ||
+        user.username.toLowerCase().includes(searchTerm) ||
+        user.email.toLowerCase().includes(searchTerm)
+      );
+    });
+
+    renderUsers(filteredUsers);
+  });
 
   let accessToken = window.location.search.split("?")[1].split("=")[1];
 
@@ -191,6 +209,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (!verifyAccessTokenResponse.success) {
     return (window.location.href = "/");
   }
+  document.getElementById("loadingSpinner").classList.remove("active");
 
   const getUsersResponse = await getUsers(accessToken);
 
@@ -199,20 +218,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   const { success, users } = getUsersResponse;
+  allUsers = users;
   renderUsers(users);
-
-  searchBox.addEventListener("input", (e) => {
-    let searchTerm = e.target.value.toLowerCase();
-    const filteredUsers = users.filter((user) => {
-      return (
-        user.name.toLowerCase().includes(searchTerm) ||
-        user.username.toLowerCase().includes(searchTerm) ||
-        user.email.toLowerCase().includes(searchTerm)
-      );
-    });
-
-    renderUsers(filteredUsers);
-  });
 
   // display add user modal on button click
   const addUserModalButton = document.getElementById("addButton");
@@ -225,55 +232,68 @@ document.addEventListener("DOMContentLoaded", async () => {
   const insertUserButton = document.getElementById("addUser_button");
   const errorDiv = document.getElementById("addUserModalErrorDiv");
   insertUserButton.addEventListener("click", async (e) => {
-    e.preventDefault();
+    try {
+      insertUserButton.disabled = true;
+      insertUserButton.innerHTML = spinner;
 
-    let name = document.getElementById("newUser_name").value.trim();
-    let username = document.getElementById("newUser_username").value.trim();
-    let email = document.getElementById("newUser_email").value.trim();
+      e.preventDefault();
 
-    if (!name || !username || !email) {
-      errorDiv.textContent = "Please fill all the fields";
+      let name = document.getElementById("newUser_name").value.trim();
+      let username = document.getElementById("newUser_username").value.trim();
+      let email = document.getElementById("newUser_email").value.trim();
+
+      if (!name || !username || !email) {
+        errorDiv.textContent = "Please fill all the fields";
+        if (errorDiv.classList.contains("opacity-0")) {
+          errorDiv.classList.remove("opacity-0");
+          setTimeout(() => {
+            errorDiv.classList.add("opacity-0");
+          }, 2500);
+        }
+        return;
+      }
+      name.value = "";
+      username.value = "";
+      email.value = "";
+
+      const insetUserResponse = await insetUser({
+        name,
+        username,
+        email,
+        accessToken,
+      });
+
+      console.log(insetUserResponse);
+
+      if (!insetUserResponse.success) {
+        errorDiv.textContent = insetUserResponse.message;
+        if (errorDiv.classList.contains("opacity-0")) {
+          errorDiv.classList.remove("opacity-0");
+          setTimeout(() => {
+            errorDiv.classList.add("opacity-0");
+          }, 2500);
+        }
+        return;
+      }
+
+      errorDiv.textContent = "User Inserted Successfully!";
       if (errorDiv.classList.contains("opacity-0")) {
         errorDiv.classList.remove("opacity-0");
+        errorDiv.classList.remove("bg-danger");
+        errorDiv.classList.add("bg-info");
         setTimeout(() => {
           errorDiv.classList.add("opacity-0");
-        }, 2500);
+          errorDiv.classList.remove("bg-info");
+          document.getElementById("closeAddUserModalBtn").click();
+        }, 2000);
       }
-      return;
+
+      updateUsersList(allUsers).then(() => console.log(`Users List Updated!`));
+    } catch (error) {
+      console.log(`An Error Occured: ${error.message}`);
+    } finally {
+      insertUserButton.disabled = false;
+      insertUserButton.innerHTML = "Add User";
     }
-
-    const insetUserResponse = await insetUser({
-      name,
-      username,
-      email,
-      accessToken,
-    });
-
-    console.log(insetUserResponse);
-
-    if (!insetUserResponse.success) {
-      errorDiv.textContent = insetUserResponse.message;
-      if (errorDiv.classList.contains("opacity-0")) {
-        errorDiv.classList.remove("opacity-0");
-        setTimeout(() => {
-          errorDiv.classList.add("opacity-0");
-        }, 2500);
-      }
-      return;
-    }
-
-    errorDiv.textContent = "User Inserted Successfully!";
-    if (errorDiv.classList.contains("opacity-0")) {
-      errorDiv.classList.remove("opacity-0");
-      errorDiv.classList.remove("bg-danger");
-      errorDiv.classList.add("bg-info");
-      setTimeout(() => {
-        errorDiv.classList.add("opacity-0");
-        errorDiv.classList.remove("bg-info");
-        document.getElementById("closeAddUserModalBtn").click();
-      }, 2000);
-    }
-
-    updateUsersList().then(() => console.log(`Users List Updated!`));
   });
 });
