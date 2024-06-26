@@ -1,0 +1,8 @@
+@import url("https://fonts.googleapis.com/css2?family=Nunito+Sans:opsz,wdth,wght@6..12,87.5,600&display=swap");
+* {
+  font-family: "Nunito Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+  font-variation-settings: "wdth" 87.5, "YTLC" 500;
+}

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web Development In Python</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/index.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{url_for('static', filename='css/global.css')}}"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <div class="form">
+        <div class="inputBox">
+          <input
+            type="text"
+            autocomplete="off"
+            id="username"
+            placeholder="Username Here!"
+          />
+        </div>
+        <div class="inputBox">
+          <input type="password" id="password" placeholder="Password Here!" />
+        </div>
+
+        <button id="signinButton">Submit</button>
+        <div class="links">
+          <p>Don't Have Account !</p>
+          <a href="/signup">Create an Account</a>
+        </div>
+      </div>
+    </div>
+
+    <script src="{{url_for('static', filename='js/index.js')}}"></script>
+  </body>
+</html>
