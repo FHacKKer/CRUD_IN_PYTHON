@@ -34,3 +34,6 @@ coverage.xml
 .idea/
 .vscode/
 *.swp
+
+# .env file
+.env
