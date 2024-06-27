@@ -223,8 +223,6 @@ const deleteUser = async (user) => {
 
   confirmDelButton.addEventListener("click", async (e) => {
     e.preventDefault();
-    alert("Will be Added Soon!");
-    return;
 
     const req = await fetch("/delete", {
       method: "POST",
@@ -233,12 +231,12 @@ const deleteUser = async (user) => {
         Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify({
-        id: user.id,
+        userId: user.id,
       }),
     });
 
     const res = await req.json();
-
+    console.log(res);
     if (res.success) {
       await updateUsersList();
       deleteModal.hide();

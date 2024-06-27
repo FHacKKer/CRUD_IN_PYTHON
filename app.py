@@ -392,5 +392,82 @@ def UPDATE_USER():
         return jsonify({"success": False, "message": "Failed To Update User!"})
 
 
+@app.route("/delete", methods=["POST"])
+def DELETE_USER():
+    try:
+        auth_header = request.headers.get("Authorization")
+        request_payload = request.json
+        if not auth_header:
+            return (
+                jsonify(
+                    {"success": False, "message": "Authorization Header Not Found!"}
+                ),
+                401,
+            )
+
+        token = None
+        if auth_header.startswith("Bearer "):
+            token = auth_header.split(" ")[1]
+        if token is None:
+            return (
+                jsonify(
+                    {"success": False, "message": "Invalid Request! No Token Provided!"}
+                ),
+                400,
+            )
+
+        secret_key = os.getenv("JWT_SECRET_KEY")
+        if not secret_key:
+            return (
+                jsonify({"success": False, "message": "JWT_SECRET_KEY NOT FOUND!"}),
+                500,
+            )
+
+        decoded_token = verify_jwt_token(token, secret_key)
+        if decoded_token is None:
+            return jsonify({"success": False, "message": "Invalid Access Token!"}), 401
+
+        current_user = decoded_token.get("user")
+        if not current_user:
+            return jsonify({"success": False, "message": "Invalid Access Token!"}), 401
+
+        userId = request_payload.get("userId")
+        if not userId:
+            return (
+                jsonify({"success": False, "message": "No User Id was specified!"}),
+                400,
+            )
+
+        conn = connect_to_db()
+        if conn is None:
+            return (
+                jsonify(
+                    {"success": False, "message": "Failed to connect to the database."}
+                ),
+                500,
+            )
+
+        try:
+            cursor = conn.cursor()
+            query = "DELETE FROM users WHERE id = %s LIMIT %s"
+            cursor.execute(query, (userId, 1))
+            conn.commit()
+            cursor.close()
+            conn.close()
+            return (
+                jsonify({"success": True, "message": "User Deleted successfully!"}),
+                200,
+            )
+        except Exception as e:
+            conn.rollback()
+            print(f"Error: {str(e)}")
+            return jsonify({"success": False, "message": "Failed To Delete User!"}), 500
+        finally:
+            conn.close()
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return jsonify({"success": False, "message": "An error occurred!"}), 500
+                        
+
 if __name__ == "__main__":
     app.run(debug=True)
