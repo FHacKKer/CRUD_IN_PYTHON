@@ -54,7 +54,107 @@
       <h3 class="text-white mt-4 text-center">Please Wait</h3>
     </div>
 
-    <!-- Modal -->
+    <!--Update Modal -->
+    <div
+      class="modal fade"
+      id="updateUserModal"
+      data-bs-backdrop="static"
+      data-bs-keyboard="false"
+      tabindex="-1"
+      aria-labelledby="updateUserModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="updateUserModalLabel">
+              Update User
+            </h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="input-group flex-nowrap">
+              <span class="input-group-text" id="addon-wrapping"
+                ><img
+                  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAlZJREFUSEuVlT1rFEEYx39/rIULSi4o2qTQ0soPICYxBktPUvkJBDGCVqKdCQYt7G1NLFVy+JbS1k4sbBRjIhGDWiqPt7uzuzOzs5tzi4Ob3XmeZ/5vIwHG+E/+ff0D+xTIXrun7Uu3/h9F84LlNr9sukW+emG05zZoWlh24o/ALeB5MZ3I1xMFNAZEN4C71UQVpPnO68BqCIJ/YvAahK0cInMYQ8G2QdbohSs2CywDU8BZ4LXPYoxmFwsvXYFLwHrE6ABYAzaA821cFiS34/QD6AkOGvyOtHYI2AW2gKN1nQiJ+q8jKqyyA0wCh4HvcQPBrsEOaKpBcquKfABzzDUjbGDiSWSYgWDNxBBjPpBm5ZUCnKQP3ABzoCHYNpApJuPkADADWhHWN0dyA2U3aKuKvMbXwFZcYZ+uv67pg/YcyGCPn7JzYajSRCcMlkCzwv6YeIPl+v9QGq0OnNB03UZLOdPDt6H9xFG6sqhHPjWngVOIyYjkb8A7xFtMq2C/ArlXSCQhylXxCNFPB0yRF57Et4RdNniVKheqSCxgPHOLT0ck3KEIt71ws3pg0+79gns3n6mu9oRcFtWjTADvQX2wZcTN6gShPyL7656wJYOvwEngpy9+f7CrwH3QJtiZYOJErtc9M61YFoRZ8F0ZOf9h2KD+ch1xEQsTMm2ihobOITYwPQZbLOUb++AT4hjGhGAvdZX62RVdtkeAL6DPwo6X12rhg3pXWTNYTwdidLEUwqr2VydIJ3Un4O3J0G20cXzpKzqM94bIyphpzLoPo62FvOzyufkHPIvvIb+9XqEAAAAASUVORK5CYII="
+              /></span>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Name"
+                id="updateUser_name"
+                aria-label="Name"
+                autocomplete="off"
+                aria-describedby="addon-wrapping"
+              />
+            </div>
+
+            <div class="input-group flex-nowrap my-2">
+              <span class="input-group-text" id="addon-wrapping"
+                ><img
+                  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAA2RJREFUSEt11kuoVlUUB/Df0hpl4SDKLMtsUhloZk+dRNIgQQosKCeKUPSAnNSgSNGehGANgqAsJJAoCbLXoHBSSpJlL5NAy0JFKYgiCSLu6tvn7Pt959x7/Qbf2Wefdfb6r/9a679OBLL5o16UVcjhvuGv7tf7kf3pN4pN9+ShZeNg6odT2E+5VYGO4HVWQ2zTiOXkdbgai6vRPmJ/yM+Tj4ixEaC+s+iG2aWIvETYLuOmhr8aTZe6ar+HuIf8ZSqsp6HIWrwonCXtxTb8QByoybpKuhKrcS1O4WFsnch466Cbo7BGeg3/DnK9UXoOY5PRNfinDeweGzxfjzOF1TK29SPuu7xY+F6agaUo4ZeDLhJelW6sTH0m3YejtfSWBJ8mf9NEdrQLergO9iQ34MlgfWV+dvBNcu6EKH7DQuF4qeeQT2cTTewib2kdl/3Rr1TKXuE7aRH+q4/ewp01gg3B9AwbpLXB2xnuqjVwBvZhAc37+8fJGa+rddgyQHSv9EonM3+QM4U50tEKbJ50GCcxq5PEB6SX8BDlOh5BW2/jSJdKuzs9Vg45TyiH/lwPm0ccJk8KszotfzN2YbuwakRR6+DXYE6GGTJOjSqhOlaiik1VWDYSa0K+mdzdqZPziRPkEeHSxkGn0f7C2bgAJzoRlPuvelS0YRwPFmVD01C7ZkvH8CdmjihqXziIy4XlMj4cdWzz8jkZHpVWtbLoDTwfnOoJZVghvYtvhQWNgHbU9PVgdfI48UyHomKyRFgoh6X6e6mSWtbjOlJAbqxN97Jw/wSK4jbyA5pEzsc/7TV2hpzXPaVT2oe0qA8GM7KRE3MGDXqr8PGEPojpIfdlaR6xhXxCOCRjVshjGT6RjtSI50rLgguzaTSXYTMexBe4vlLZS3IB1jZbOyJ2ZFgp48uQiydHUNjN0kylsXZgpTAmXYOv2yh7fTCcViUHT3X0fUXwXs/BKHF34J3hBAiPDHRsc28EjGx7A3ATCkUl14Xfrdk20E/BtAxzZSwbzIA1uKLmpKjqs3296vfBREUu0+uFpoL6ilsBDwHtJtbV/HUUps75SYO+66YN73ZyedMjzB+o7FhygPgx5M7k/Y4Wdaq7ZuF0XwZT7/c/PybZTAI33mjDjE/9qdKF1WnMccnvDrBJ6/8BA/1JNLmOXEcAAAAASUVORK5CYII="
+              /></span>
+              <input
+                type="text"
+                class="form-control"
+                id="updateUser_username"
+                placeholder="Username"
+                autocomplete="off"
+                aria-label="Username"
+                aria-describedby="addon-wrapping"
+              />
+            </div>
+
+            <div class="input-group flex-nowrap my-2">
+              <span class="input-group-text" id="addon-wrapping"
+                ><img
+                  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAi5JREFUSEuNljFoVEEQhr9BJIWFlYUIAbHQFPY2dimFQEyrYCdYCSliI2IVQbAS7ISkTWIjVulsrLXQSqIIKaxSWIjoeLtv9nbm3u7lXnHcvd3Z+ef//5k9EUDzB/jvTB9B0Ome/LoRlPfUoBp9eoJG1OiVIWwl8EhzGf6Zmz0eWn/FitN7R8YoxWixh7VPb+V0DXQbuNYnxdCZEB3ePwObwLsklq/gB3BpTNFiNc5U9hXhSjFOOaEIsAJ8GVHhnWYRDbpS9amCwkuooCT4BdwFDrqCtxOsI+ygcs6UzOyIQ+EslLl+rrAF/K3eb9AlnEFlW9DN4MFBrliBJbsHvAKWEN6j3AZ+doS/gLCPchP4DdwHXlcPFJGHk31DXxd4q7AMcgy6DnywFi65bmQahYso3wVuqfApnjOTwLkvfT0P7AGrwB/gIchLGxsPUF4AZxEOUTYm6yfDCPFAxWsgar4WhzSFPAEeG+xdo/GO7UlrT904S9uKFF2Ra4LqgFWEvQnqVFU6+wSVDdBDQ+0lcglio4XMDedcBt4I/FNImhy1hRe10SyJrKGTh0EyLERnuWU30kfZQxfGCkZ9YP6t6OaOt0YRXsuC1tSfcdG0X3uXSac3vN1DJ38j+949iwykUZZMwZFC0ix08prAM4WrHWRzJ4aL+Tjp6kfDuI6zaNhzytTsX44dTy0cYFdWW4+Iyp/pLpx4W/mGnCtyQyf/L8SPa0dRxNBDHQ6azoiY8T9qQeAhA10/GQAAAABJRU5ErkJggg=="
+              /></span>
+              <input
+                type="text"
+                class="form-control"
+                autocomplete="off"
+                id="updateUser_email"
+                placeholder="Email Address"
+                aria-label="Email Address"
+                aria-describedby="addon-wrapping"
+              />
+            </div>
+          </div>
+          <div
+            id="updateUserErrorDiv"
+            class="bg-danger opacity-0 p-2 rounded-3 text-center text-white"
+          >
+            Error Will Displayed Here
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+              id="closeUpdateUserModal"
+            >
+              Close
+            </button>
+            <button
+              type="button"
+              id="updateUser_button"
+              class="btn btn-primary"
+              disabled
+            >
+              Update User
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--Insert Modal -->
     <div
       class="modal fade"
       id="addUserModal"
@@ -149,7 +249,7 @@
       </div>
     </div>
 
-    <div class="container-fluid py-3 heroDiv">
+    <div class="container-fluid py-3 heroDiv overflow-y-auto">
       <div class="row">
         <div class="col-md-12 text-center">
           <h4 class="bg-primary p-3 text-white rounded-3">
@@ -172,12 +272,12 @@
           class="col-md-12 mx-auto border-light border mb-3 rounded-2 d-flex align-items-center justify-content-between p-2"
         >
           <p class="mb-0">List Of Users</p>
-          <button class="btn btn-outline-info" id="addButton">
-            Add Student
+          <button class="btn btn-outline-info" id="addUserTrigger">
+            Add User
           </button>
         </div>
-        <div class="col-md-12 overflow-y-auto">
-          <div style="height: 550px" class="table-responsive overflow-y-auto">
+        <div style="max-height: 450px; overflow-y: auto" class="col-md-12">
+          <div class="table-responsive">
             <table
               class="table table-dark table-hover table-bordered table-striped overflow-y-auto"
             >
