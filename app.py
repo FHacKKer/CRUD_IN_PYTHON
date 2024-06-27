@@ -327,5 +327,70 @@ def Add_User():
             conn.close()
 
 
+@app.route("/update", methods=["POST"])
+def UPDATE_USER():
+    try:
+        auth_header = request.headers.get("Authorization")
+        request_data = request.json
+
+        if not auth_header:
+            return jsonify(
+                {"success": False, "message": "Authorization Header Not Found!"}
+            )
+
+        token = None
+        if auth_header.startswith("Bearer "):
+            token = auth_header.split(" ")[1]
+
+        jwt_secret = os.getenv("JWT_SECRET_KEY")
+        if not jwt_secret:
+            return jsonify({"success": False, "message": "JWT_SECRET_KEY NOT FOUND!"})
+
+        decoded_payload = verify_jwt_token(token, jwt_secret)
+        if not decoded_payload:
+            return jsonify(
+                {
+                    "success": False,
+                    "message": "Failed To Update User! Invalid JWT Token",
+                }
+            )
+
+        current_user = decoded_payload["user"]
+
+        name = request_data.get("name")
+        username = request_data.get("username")
+        email = request_data.get("email")
+        userId = request_data.get("id")
+
+        conn = connect_to_db()
+        if conn is None:
+            return jsonify(
+                {"success": False, "message": "Failed to connect to the database."}
+            )
+
+        cursor = conn.cursor()
+
+        alreadyExistQuery = (
+            "SELECT * FROM users WHERE (username = %s OR email = %s) AND id != %s"
+        )
+        cursor.execute(alreadyExistQuery, (username, email, userId))
+        existingUser = cursor.fetchone()
+        if existingUser:
+            return jsonify(
+                {"success": False, "message": "Username or email already exists."}
+            )
+
+        query = "UPDATE users SET name = %s, username = %s, email = %s WHERE id = %s LIMIT 1"
+        cursor.execute(query, (name, username, email, userId))
+        conn.commit()
+        conn.close()
+
+        return jsonify({"success": True, "message": "User updated successfully."})
+
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return jsonify({"success": False, "message": "Failed To Update User!"})
+
+
 if __name__ == "__main__":
     app.run(debug=True)

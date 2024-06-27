@@ -1,4 +1,5 @@
 let allUsers = [];
+let accessToken = window.location.search.split("?")[1].split("=")[1];
 const verifyAccessToken = async (token) => {
   try {
     const req = await fetch(`/verify`, {
@@ -121,21 +122,24 @@ const renderUsers = (users) => {
 
 const updateUser = async (user) => {
   try {
-    console.log(user);
+    console.log(user.id);
     if (!user) {
-      return console.warn(`Invalid user!`);
+      console.warn(`Invalid user!`);
+      return;
     }
 
     const nameInput = document.getElementById("updateUser_name");
     const usernameInput = document.getElementById("updateUser_username");
     const emailInput = document.getElementById("updateUser_email");
-    const updateButton = document.getElementById("updateUser_button");
+    let updateButton = document.getElementById("updateUser_button");
+    const errorDiv = document.getElementById("updateUserErrorDiv");
 
+    // Set initial values
     nameInput.value = user?.name;
     usernameInput.value = user?.username;
     emailInput.value = user?.email;
 
-    // Function to enable update button
+    // Function to enable/disable update button
     const enableUpdateButton = () => {
       updateButton.removeAttribute("disabled");
     };
@@ -143,51 +147,106 @@ const updateUser = async (user) => {
       updateButton.setAttribute("disabled", true);
     };
 
+    // Function to handle input changes
+    const handleInputChange = () => {
+      if (
+        nameInput.value !== user.name ||
+        usernameInput.value !== user.username ||
+        emailInput.value !== user.email
+      ) {
+        enableUpdateButton();
+      } else {
+        disableUpdateButton();
+      }
+    };
+
     // Event listeners on input fields
-    nameInput.addEventListener("input", () => {
-      if (
-        nameInput.value !== user.name ||
-        usernameInput.value !== user.username ||
-        emailInput.value !== user.email
-      ) {
-        enableUpdateButton();
-      } else {
-        disableUpdateButton();
-      }
-    });
-    usernameInput.addEventListener("input", () => {
-      if (
-        nameInput.value !== user.name ||
-        usernameInput.value !== user.username ||
-        emailInput.value !== user.email
-      ) {
-        enableUpdateButton();
-      } else {
-        disableUpdateButton();
-      }
-    });
-    emailInput.addEventListener("input", () => {
-      if (
-        nameInput.value !== user.name ||
-        usernameInput.value !== user.username ||
-        emailInput.value !== user.email
-      ) {
-        enableUpdateButton();
-      } else {
-        disableUpdateButton();
-      }
-    });
+    nameInput.addEventListener("input", handleInputChange);
+    usernameInput.addEventListener("input", handleInputChange);
+    emailInput.addEventListener("input", handleInputChange);
 
     const updateUserModal = new bootstrap.Modal("#updateUserModal");
     updateUserModal.show();
+
+    // Remove existing event listeners by cloning the button
+    let newUpdateButton = updateButton.cloneNode(true);
+    updateButton.replaceWith(newUpdateButton);
+    updateButton = newUpdateButton;
+
+    updateButton.addEventListener("click", async (e) => {
+      e.preventDefault();
+      let params = {
+        name: nameInput.value.trim(),
+        username: usernameInput.value.trim(),
+        email: emailInput.value.trim(),
+        id: user.id,
+      };
+      const req = await fetch("/update", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(params),
+      });
+
+      const res = await req.json();
+      console.log(res); // Log response from server
+      if (res.success) {
+        await updateUsersList();
+        updateUserModal.hide(); // Close modal after update
+      } else {
+        console.warn(res.message);
+        errorDiv.textContent = res.message;
+        errorDiv.classList.remove("opacity-0");
+        setTimeout(() => {
+          errorDiv.classList.add("opacity-0");
+        }, 2500);
+      }
+    });
   } catch (error) {
-    console.log(`An Error Occured: ${error}`);
+    console.error(`An Error Occurred: ${error}`);
   }
 };
 
 const deleteUser = async (user) => {
-  console.log(user);
-  // Implement delete logic here
+  const deleteModal = new bootstrap.Modal("#deleteModal");
+  let user_name_span = document.getElementById("deleteUser_name");
+  let confirmDelButton = document.getElementById("confirmDeleteButton");
+
+  user_name_span.textContent = user.username;
+  deleteModal.show();
+
+  let newDeleteButton = confirmDelButton.cloneNode(true);
+  confirmDelButton.replaceWith(newDeleteButton);
+  confirmDelButton = newDeleteButton;
+
+  confirmDelButton.addEventListener("click", async (e) => {
+    e.preventDefault();
+    alert("Will be Added Soon!");
+    return;
+
+    const req = await fetch("/delete", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        id: user.id,
+      }),
+    });
+
+    const res = await req.json();
+
+    if (res.success) {
+      await updateUsersList();
+      deleteModal.hide();
+    } else {
+      console.warn(res.message);
+      alert(res.message);
+    }
+  });
 };
 
 const openAddUserModal = () => {
@@ -279,8 +338,6 @@ const updateUsersList = async () => {
 };
 
 document.addEventListener("DOMContentLoaded", async () => {
-  let accessToken = window.location.search.split("?")[1].split("=")[1];
-
   if (!accessToken) window.location.href = "/";
 
   const verifyAccessTokenResponse = await verifyAccessToken(accessToken);

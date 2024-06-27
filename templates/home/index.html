@@ -249,6 +249,51 @@
       </div>
     </div>
 
+    <!-- delete modal -->
+    <div
+      class="modal fade"
+      id="deleteModal"
+      data-bs-backdrop="static"
+      data-bs-keyboard="false"
+      tabindex="-1"
+      aria-labelledby="deleteModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="deleteModalLabel">Delete User</h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            Are You Sure You Want To Delele User
+            <span id="deleteUser_name" class="text-bg-dark">Faisal</span>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-primary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+            <button
+              type="button"
+              id="confirmDeleteButton"
+              class="btn btn-danger"
+            >
+              DELETE
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="container-fluid py-3 heroDiv overflow-y-auto">
       <div class="row">
         <div class="col-md-12 text-center">
