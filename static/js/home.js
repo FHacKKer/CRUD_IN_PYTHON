@@ -1,4 +1,7 @@
+import randomUsers from "./users.js";
+
 let allUsers = [];
+
 let accessToken = window.location.search.split("?")[1].split("=")[1];
 const verifyAccessToken = async (token) => {
   try {
@@ -174,34 +177,49 @@ const updateUser = async (user) => {
     updateButton = newUpdateButton;
 
     updateButton.addEventListener("click", async (e) => {
-      e.preventDefault();
-      let params = {
-        name: nameInput.value.trim(),
-        username: usernameInput.value.trim(),
-        email: emailInput.value.trim(),
-        id: user.id,
-      };
-      const req = await fetch("/update", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(params),
-      });
+      try {
+        const spinner = `<div class="spinner-border spinner-border-sm" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>`;
 
-      const res = await req.json();
-      console.log(res); // Log response from server
-      if (res.success) {
-        await updateUsersList();
-        updateUserModal.hide(); // Close modal after update
-      } else {
-        console.warn(res.message);
-        errorDiv.textContent = res.message;
-        errorDiv.classList.remove("opacity-0");
-        setTimeout(() => {
-          errorDiv.classList.add("opacity-0");
-        }, 2500);
+        updateButton.innerHTML = spinner;
+        updateButton.disabled = true;
+
+        e.preventDefault();
+        let params = {
+          name: nameInput.value.trim(),
+          username: usernameInput.value.trim(),
+          email: emailInput.value.trim(),
+          id: user.id,
+        };
+        const req = await fetch("/update", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify(params),
+        });
+
+        const res = await req.json();
+        console.log(res); // Log response from server
+        if (res.success) {
+          await updateUsersList();
+          updateUserModal.hide(); // Close modal after update
+        } else {
+          console.warn(res.message);
+          errorDiv.textContent = res.message;
+          errorDiv.classList.remove("opacity-0");
+          setTimeout(() => {
+            errorDiv.classList.add("opacity-0");
+          }, 2500);
+        }
+      } catch (error) {
+        console.warn(`Error While Updating User : ${error.message}`);
+      } finally {
+        // await new Promise((resolve, reject) => setTimeout(resolve, 1500));
+        updateButton.innerHTML = "Update User";
+        updateButton.disabled = false;
       }
     });
   } catch (error) {
@@ -222,27 +240,42 @@ const deleteUser = async (user) => {
   confirmDelButton = newDeleteButton;
 
   confirmDelButton.addEventListener("click", async (e) => {
-    e.preventDefault();
+    try {
+      const spinner = `<div class="spinner-border spinner-border-sm" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>`;
+      confirmDelButton.innerHTML = spinner;
+      confirmDelButton.disabled = true;
 
-    const req = await fetch("/delete", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify({
-        userId: user.id,
-      }),
-    });
+      e.preventDefault();
 
-    const res = await req.json();
-    console.log(res);
-    if (res.success) {
-      await updateUsersList();
-      deleteModal.hide();
-    } else {
-      console.warn(res.message);
-      alert(res.message);
+      const req = await fetch("/delete", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          userId: user.id,
+        }),
+      });
+
+      const res = await req.json();
+      console.log(res);
+      if (res.success) {
+        await updateUsersList();
+        deleteModal.hide();
+      } else {
+        console.warn(res.message);
+        alert(res.message);
+      }
+    } catch (error) {
+      console.warn(`Failed to Delete User: ${error.message}`);
+    } finally {
+      // await new Promise((res) => setTimeout(res, 1500));
+      confirmDelButton.innerHTML = "Delete User";
+      confirmDelButton.removeAttribute("disabled");
+      confirmDelButton.disabled = false;
     }
   });
 };
@@ -260,13 +293,17 @@ const handleAddUser = async (accessToken) => {
   const insertUserButton = document.getElementById("addUser_button");
   const errorDiv = document.getElementById("addUserModalErrorDiv");
 
-  insertUserButton.disabled = true;
-  insertUserButton.innerHTML = spinner;
+  const nameInput = document.getElementById("newUser_name");
+  const usernameInput = document.getElementById("newUser_username");
+  const emailInput = document.getElementById("newUser_email");
 
   try {
-    let name = document.getElementById("newUser_name").value.trim();
-    let username = document.getElementById("newUser_username").value.trim();
-    let email = document.getElementById("newUser_email").value.trim();
+    insertUserButton.disabled = true;
+    insertUserButton.innerHTML = spinner;
+
+    let name = nameInput.value.trim();
+    let username = usernameInput.value.trim();
+    let email = emailInput.value.trim();
 
     if (!name || !username || !email) {
       throw new Error("Please fill all the fields");
@@ -292,6 +329,9 @@ const handleAddUser = async (accessToken) => {
       errorDiv.classList.add("opacity-0");
       errorDiv.classList.remove("bg-info");
       document.getElementById("closeAddUserModalBtn").click();
+      nameInput.value = "";
+      usernameInput.value = "";
+      emailInput.value = "";
     }, 2000);
 
     await updateUsersList();
@@ -375,6 +415,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const insertUserButton = document.getElementById("addUser_button");
   insertUserButton.addEventListener("click", () => handleAddUser(accessToken));
+
+  const randomUserButton = document.getElementById("random_user_btn");
+  randomUserButton.addEventListener("click", addRandom);
 });
 
 function createButton(text, classes, clickHandler) {
@@ -384,3 +427,19 @@ function createButton(text, classes, clickHandler) {
   button.addEventListener("click", clickHandler);
   return button;
 }
+const addRandom = () => {
+  const nameInput = document.getElementById("newUser_name");
+  const usernameInput = document.getElementById("newUser_username");
+  const emailInput = document.getElementById("newUser_email");
+
+  usernameInput.value = "";
+  nameInput.value = "";
+  emailInput.value = "";
+
+  const randomUser =
+    randomUsers[Math.floor(Math.random() * randomUsers.length)];
+
+  nameInput.value = randomUser.name;
+  usernameInput.value = randomUser.alphanumeric;
+  emailInput.value = randomUser.email;
+};
