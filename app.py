@@ -31,6 +31,23 @@ def is_valid_field(s, min_length, max_length):
     return s.strip() and min_length <= len(s.strip()) <= max_length
 
 
+def ensure_table_exists(table_name, create_table_sql):
+    conn = connect_to_db()
+    if conn:
+        try:
+            cursor = conn.cursor()
+            cursor.execute(create_table_sql)
+            conn.commit()
+            conn.close()
+        except mysql.connector.Error as e:
+            print(f"Error creating {table_name} table: {e}")
+            return False
+        return True
+    else:
+        print("Failed to connect to the database.")
+        return False
+
+
 @app.route("/signin", methods=["POST"])
 def sign_in():
 
@@ -62,10 +79,28 @@ def sign_in():
             ),
             400,
         )
+    admin_table_query = """
+                CREATE TABLE IF NOT EXISTS admin (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    name VARCHAR(255),
+                    username VARCHAR(255) UNIQUE,
+                    email VARCHAR(255) UNIQUE,
+                    password VARCHAR(255),
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """
 
     conn = connect_to_db()
     if conn:
         try:
+            if not ensure_table_exists("admin", admin_table_query):
+                return (
+                    jsonify(
+                        {"success": False, "message": "Failed to create admin table."}
+                    ),
+                    500,
+                )
+
             cursor = conn.cursor(dictionary=True)
             query = "SELECT username FROM admin WHERE username = %s AND password = %s LIMIT 1"
             cursor.execute(query, (username, password))
@@ -218,10 +253,26 @@ def GET_USERS():
             ),
             401,
         )
+
+    create_users_table_sql = """
+        CREATE TABLE IF NOT EXISTS users (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(255),
+            username VARCHAR(255) UNIQUE,
+            email VARCHAR(255) UNIQUE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """
+
     conn = connect_to_db()
     if conn is None:
         return []
     try:
+        if not ensure_table_exists("users", create_users_table_sql):
+            return (
+                jsonify({"success": False, "message": "Failed to create users table."}),
+                500,
+            )
         cursor = conn.cursor(dictionary=True)
         query = "SELECT id,name,username,email,created_at FROM users"
         cursor.execute(query)
