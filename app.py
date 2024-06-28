@@ -41,7 +41,7 @@ def sign_in():
     username = request_data.get("username")
     password = request_data.get("password")
 
-    if not is_valid_field(username, 5, 20):
+    if not is_valid_field(username, 3, 20):
         return (
             jsonify(
                 {
@@ -52,7 +52,7 @@ def sign_in():
             400,
         )
 
-    if not is_valid_field(password, 5, 20):
+    if not is_valid_field(password, 3, 20):
         return (
             jsonify(
                 {
@@ -467,7 +467,7 @@ def DELETE_USER():
     except Exception as e:
         print(f"Error: {str(e)}")
         return jsonify({"success": False, "message": "An error occurred!"}), 500
-                        
+
 
 if __name__ == "__main__":
     app.run(debug=True)
